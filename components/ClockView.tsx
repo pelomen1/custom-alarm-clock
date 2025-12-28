@@ -18,27 +18,27 @@ export const ClockView: React.FC<ClockViewProps> = ({ settings }) => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full animate-in fade-in duration-500">
-      <div className="text-zinc-400 text-lg mb-2 tracking-wide uppercase font-medium">
+    <div className="flex flex-col items-center justify-center h-full animate-in fade-in duration-700">
+      <div className="text-zinc-500 text-sm md:text-lg mb-4 tracking-[0.3em] uppercase font-extrabold opacity-60">
         {formatDate(now, settings.language)}
       </div>
-      <div className="relative">
-        <h1 className="text-7xl md:text-9xl font-bold tracking-tighter text-white tabular-nums">
+      
+      <div className="relative flex items-baseline">
+        {/* Main Time */}
+        <h1 className={`text-[5.5rem] leading-none md:text-9xl font-black tracking-tighter tabular-nums transition-all duration-500 ${themeColors.isRgb ? 'text-rgb' : themeColors.primary} drop-shadow-2xl`}>
           {formatTime(now, settings.is24Hour)}
         </h1>
-        <div className={`absolute -right-6 bottom-4 md:-right-12 md:bottom-6 text-2xl md:text-3xl font-medium tabular-nums ${themeColors.primary}`}>
+        
+        {/* Seconds - Now aligned properly */}
+        <div className={`ml-2 text-3xl md:text-4xl font-bold tabular-nums opacity-40 ${themeColors.isRgb ? 'text-white' : themeColors.primary}`}>
           {formatSeconds(now)}
         </div>
       </div>
       
-      <div className="mt-12 flex gap-4">
-        <div className="bg-zinc-900/50 backdrop-blur-md border border-zinc-800 rounded-2xl p-4 w-32 flex flex-col items-center">
-            <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-1">{t('timezone', settings.language)}</span>
-            <span className="text-zinc-300 font-medium text-sm">{t('local', settings.language)}</span>
-        </div>
-        <div className="bg-zinc-900/50 backdrop-blur-md border border-zinc-800 rounded-2xl p-4 w-32 flex flex-col items-center">
-            <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-1">{t('battery', settings.language)}</span>
-            <span className="text-green-400 font-medium text-sm">100%</span>
+      <div className="mt-16 flex flex-col items-center">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] px-8 py-4 flex flex-col items-center shadow-2xl">
+            <span className="text-[10px] text-zinc-500 uppercase font-black tracking-widest mb-1">{t('timezone', settings.language)}</span>
+            <span className="text-zinc-200 font-bold text-lg">{t('local', settings.language)}</span>
         </div>
       </div>
     </div>

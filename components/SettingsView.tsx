@@ -14,38 +14,23 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSett
   const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      updateSettings({ 
-        soundId: 'custom', 
-        customSoundUrl: url,
-        customSoundName: file.name
-      });
-    }
-  };
+  const handleShare = async () => {
+    const shareData = {
+      title: 'PixelClock Ultra',
+      text: 'Зацени мой новый будильник! Установи его прямо через браузер, и он будет работать как обычное приложение.',
+      url: window.location.href
+    };
 
-  const togglePreview = () => {
-    if (!audioPreviewRef.current) return;
-
-    if (isPlayingPreview) {
-      audioPreviewRef.current.pause();
-      setIsPlayingPreview(false);
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Share failed', err);
+      }
     } else {
-      const src = settings.customSoundUrl || 'https://assets.mixkit.co/active_storage/sfx/936/936-preview.mp3';
-      audioPreviewRef.current.src = src;
-      audioPreviewRef.current.currentTime = settings.soundStartTime;
-      audioPreviewRef.current.play();
-      setIsPlayingPreview(true);
-      
-      // Auto stop after 5 seconds
-      setTimeout(() => {
-        if (audioPreviewRef.current) {
-            audioPreviewRef.current.pause();
-            setIsPlayingPreview(false);
-        }
-      }, 5000);
+      // Fallback: Copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      alert('Ссылка скопирована! Просто отправь её другу.');
     }
   };
 
@@ -53,22 +38,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSett
   const backgrounds: BackgroundType[] = ['black', 'cosmos', 'aurora', 'grid'];
 
   return (
-    <div className="h-full flex flex-col animate-in slide-in-from-right-4 duration-500 overflow-y-auto pb-24">
+    <div className="h-full flex flex-col animate-in slide-in-from-right-4 duration-500 overflow-y-auto pb-32">
       <audio ref={audioPreviewRef} />
-      <h2 className={`text-3xl font-bold tracking-tight mb-8 ${themeColors.isRgb ? 'text-rgb' : 'text-white'}`}>{t('settings', settings.language)}</h2>
+      <h2 className={`text-4xl font-black tracking-tight mb-8 ${themeColors.isRgb ? 'text-rgb' : 'text-white'}`}>{t('settings', settings.language)}</h2>
 
-      {/* Language */}
+      {/* Language & Format */}
       <section className="mb-8">
-        <h3 className="text-zinc-500 uppercase text-xs font-bold tracking-wider mb-4 px-2">{t('general', settings.language)}</h3>
-        <div className="bg-zinc-900/80 backdrop-blur-sm rounded-3xl p-2 space-y-1">
-          <div className="flex items-center justify-between p-4 border-b border-zinc-800/50">
-             <span className="text-lg">{t('language', settings.language)}</span>
-             <div className="flex gap-2 bg-zinc-950 p-1 rounded-xl">
+        <h3 className="text-zinc-500 uppercase text-[10px] font-black tracking-[0.2em] mb-4 px-2">{t('general', settings.language)}</h3>
+        <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-[2rem] p-2 shadow-inner">
+          <div className="flex items-center justify-between p-4 border-b border-white/5">
+             <span className="text-lg font-semibold">{t('language', settings.language)}</span>
+             <div className="flex gap-1 bg-black p-1 rounded-xl">
                 {(['en', 'ru'] as Language[]).map(lang => (
                    <button
                      key={lang}
                      onClick={() => updateSettings({ language: lang })}
-                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${settings.language === lang ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+                     className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${settings.language === lang ? `${themeColors.bg} text-white scale-105` : 'text-zinc-600 hover:text-zinc-300'}`}
                    >
                      {lang.toUpperCase()}
                    </button>
@@ -76,12 +61,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSett
              </div>
           </div>
           <div className="flex items-center justify-between p-4">
-             <span className="text-lg">{t('timeFormat', settings.language)}</span>
+             <span className="text-lg font-semibold">{t('timeFormat', settings.language)}</span>
              <button
                onClick={() => updateSettings({ is24Hour: !settings.is24Hour })}
-               className={`w-14 h-8 rounded-full relative transition-colors duration-300 ${settings.is24Hour ? themeColors.bg : 'bg-zinc-800'}`}
+               className={`w-14 h-8 rounded-full relative transition-all duration-300 ${settings.is24Hour ? themeColors.bg : 'bg-zinc-800'}`}
              >
-               <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all duration-300 ${settings.is24Hour ? 'left-7' : 'left-1'}`} />
+               <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-lg transition-all duration-300 ${settings.is24Hour ? 'left-7' : 'left-1'}`} />
              </button>
           </div>
         </div>
@@ -89,55 +74,36 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSett
 
       {/* Appearance */}
       <section className="mb-8">
-        <h3 className="text-zinc-500 uppercase text-xs font-bold tracking-wider mb-4 px-2">{t('appearance', settings.language)}</h3>
-        <div className="bg-zinc-900/80 backdrop-blur-sm rounded-3xl p-6 space-y-6">
-           {/* Theme */}
+        <h3 className="text-zinc-500 uppercase text-[10px] font-black tracking-[0.2em] mb-4 px-2">{t('appearance', settings.language)}</h3>
+        <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-[2rem] p-6 space-y-8">
            <div>
-               <div className="mb-4 text-lg">{t('theme', settings.language)}</div>
+               <div className="mb-4 text-sm font-bold text-zinc-400 uppercase tracking-widest">{t('theme', settings.language)}</div>
                <div className="grid grid-cols-3 gap-3">
                  {themes.map(color => {
                    const c = getThemeColors(color);
                    const isActive = settings.theme === color;
-                   
                    if (color === 'rgb') {
                        return (
-                           <button
-                             key={color}
-                             onClick={() => updateSettings({ theme: color })}
-                             className={`col-span-2 relative h-16 rounded-xl border-2 flex items-center justify-center transition-all overflow-hidden ${isActive ? 'border-white' : 'border-transparent'}`}
-                           >
-                              <div className="absolute inset-0 animate-rgb opacity-80"></div>
-                              <span className="relative font-bold text-white tracking-widest">{t('rgb', settings.language)}</span>
+                           <button key={color} onClick={() => updateSettings({ theme: color })} className={`col-span-2 relative h-14 rounded-2xl border-2 transition-all overflow-hidden ${isActive ? 'border-white scale-105 shadow-xl' : 'border-transparent'}`}>
+                              <div className="absolute inset-0 animate-rgb opacity-90"></div>
+                              <span className="relative font-black text-white text-xs tracking-[0.2em] uppercase">{t('rgb', settings.language)}</span>
                            </button>
                        )
                    }
-
                    return (
-                     <button
-                       key={color}
-                       onClick={() => updateSettings({ theme: color })}
-                       className={`relative h-16 rounded-xl border-2 flex items-center justify-center transition-all overflow-hidden ${isActive ? `border-white/50` : 'border-transparent'}`}
-                     > 
-                       <div className={`absolute inset-0 opacity-20 ${c.bg}`}></div>
-                       <span className={`relative font-medium capitalize ${c.primary}`}>{t(color as any, settings.language)}</span>
-                       {isActive && <div className={`absolute right-2 top-2 w-2 h-2 rounded-full ${c.bg}`}></div>}
+                     <button key={color} onClick={() => updateSettings({ theme: color })} className={`relative h-14 rounded-2xl border-2 transition-all overflow-hidden ${isActive ? `border-white scale-105 shadow-xl` : 'border-transparent bg-white/5'}`}> 
+                       <span className={`relative font-black text-[10px] uppercase tracking-wider ${c.primary}`}>{t(color as any, settings.language)}</span>
                      </button>
                    );
                  })}
                </div>
            </div>
-           
-           {/* Background */}
            <div>
-               <div className="mb-4 text-lg">{t('background', settings.language)}</div>
+               <div className="mb-4 text-sm font-bold text-zinc-400 uppercase tracking-widest">{t('background', settings.language)}</div>
                <div className="grid grid-cols-2 gap-3">
                   {backgrounds.map(bg => (
-                      <button
-                        key={bg}
-                        onClick={() => updateSettings({ background: bg })}
-                        className={`relative h-12 rounded-xl border-2 flex items-center justify-center transition-all ${settings.background === bg ? 'border-white bg-zinc-800' : 'border-transparent bg-zinc-950/50'}`}
-                      >
-                         <span className="text-sm font-medium text-zinc-300">{t(bg as any, settings.language)}</span>
+                      <button key={bg} onClick={() => updateSettings({ background: bg })} className={`relative h-12 rounded-2xl border transition-all ${settings.background === bg ? 'border-white bg-white/10' : 'border-white/5 bg-black'}`}>
+                         <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">{t(bg as any, settings.language)}</span>
                       </button>
                   ))}
                </div>
@@ -145,85 +111,42 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSett
         </div>
       </section>
 
-      {/* Sound */}
+      {/* About & Share */}
       <section className="mb-8">
-        <h3 className="text-zinc-500 uppercase text-xs font-bold tracking-wider mb-4 px-2">{t('sound', settings.language)}</h3>
-        <div className="bg-zinc-900/80 backdrop-blur-sm rounded-3xl p-4 space-y-6">
-           
-           {/* Upload */}
-           <div>
-              <div className="text-lg mb-2">{t('melody', settings.language)}</div>
-              <div className="flex items-center gap-3">
-                 <label className={`flex-1 p-4 rounded-xl border border-dashed border-zinc-700 hover:border-zinc-500 cursor-pointer text-center text-sm text-zinc-400 transition-colors ${themeColors.lightBg}`}>
-                    {settings.customSoundName || t('upload', settings.language)}
-                    <input type="file" accept="audio/*" onChange={handleFileUpload} className="hidden" />
-                 </label>
-                 {settings.customSoundUrl && (
-                   <button 
-                     onClick={() => updateSettings({ soundId: 'default', customSoundUrl: null, customSoundName: null })}
-                     className="p-4 bg-zinc-800 rounded-xl hover:bg-zinc-700"
-                   >
-                     ✕
-                   </button>
-                 )}
-              </div>
-           </div>
+        <h3 className="text-zinc-500 uppercase text-[10px] font-black tracking-[0.2em] mb-4 px-2">{t('about', settings.language)}</h3>
+        <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-[2rem] p-6">
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <div className="text-white font-black text-xl">PixelClock Ultra</div>
+                    <div className="text-zinc-500 text-xs font-bold uppercase tracking-widest">{t('version', settings.language)} 1.0.0</div>
+                </div>
+                <div className={`${themeColors.lightBg} p-3 rounded-2xl`}>
+                    <div className={`w-3 h-3 rounded-full ${themeColors.bg} animate-pulse`}></div>
+                </div>
+            </div>
+            
+            <div className="p-4 bg-black/40 rounded-2xl mb-6 border border-white/5">
+                <p className="text-zinc-400 text-[10px] uppercase font-black leading-relaxed tracking-wider mb-2">
+                   {settings.language === 'ru' ? 'СОВЕТ ПО УСТАНОВКЕ:' : 'INSTALLATION TIP:'}
+                </p>
+                <p className="text-zinc-500 text-xs leading-relaxed">
+                   {settings.language === 'ru' 
+                    ? 'Если APK не ставится, отправь другу ссылку. Открыв её в Chrome, он сможет нажать "Установить на экран" — это будет работать как обычное приложение.' 
+                    : 'If APK fails, send the link. In Chrome, your friend can tap "Install to home screen" to get the full app experience.'}
+                </p>
+            </div>
 
-           {/* Audio Scrubber */}
-           <div>
-              <div className="flex justify-between items-end mb-4">
-                 <span className="text-sm text-zinc-400">{t('startTime', settings.language)}</span>
-                 <button 
-                   onClick={togglePreview}
-                   className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold ${themeColors.lightBg} ${themeColors.primary} hover:opacity-80 transition-opacity`}
-                 >
-                    {isPlayingPreview ? <PauseIcon className="w-3 h-3" /> : <PlayIcon className="w-3 h-3" />}
-                    {isPlayingPreview ? 'Stop' : 'Test'}
-                 </button>
-              </div>
-              
-              <div className="bg-zinc-950 rounded-2xl p-4 border border-zinc-800">
-                  <div className="text-center text-3xl font-bold tabular-nums mb-4 text-white">
-                      {settings.soundStartTime}<span className="text-lg text-zinc-500 ml-1">sec</span>
-                  </div>
-                  <input 
-                    type="range"
-                    min="0"
-                    max="120"
-                    step="1"
-                    value={settings.soundStartTime}
-                    onChange={(e) => updateSettings({ soundStartTime: parseInt(e.target.value) })}
-                    className={`w-full h-12 rounded-xl appearance-none cursor-pointer bg-zinc-800 ${themeColors.slider}`}
-                    style={{
-                        backgroundImage: 'linear-gradient(to right, #3f3f46 0%, #3f3f46 100%)',
-                        backgroundSize: '100% 100%',
-                        backgroundRepeat: 'no-repeat'
-                    }}
-                  />
-                  <div className="flex justify-between text-[10px] text-zinc-500 mt-2 px-1 font-mono">
-                      <span>00:00</span>
-                      <span>00:30</span>
-                      <span>01:00</span>
-                      <span>01:30</span>
-                      <span>02:00</span>
-                  </div>
-              </div>
-           </div>
-
-            {/* Ascending Volume */}
-           <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
-             <span className="text-lg">{t('ascending', settings.language)}</span>
-             <button
-               onClick={() => updateSettings({ ascendingVolume: !settings.ascendingVolume })}
-               className={`w-14 h-8 rounded-full relative transition-colors duration-300 ${settings.ascendingVolume ? themeColors.bg : 'bg-zinc-800'}`}
-             >
-               <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all duration-300 ${settings.ascendingVolume ? 'left-7' : 'left-1'}`} />
-             </button>
-          </div>
-
+            <button 
+                onClick={handleShare}
+                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 ${themeColors.bg} text-white shadow-lg`}
+            >
+                {t('share', settings.language)}
+            </button>
+            <div className="mt-6 pt-6 border-t border-white/5 text-center">
+                <span className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">{t('developer', settings.language)}: YOU</span>
+            </div>
         </div>
       </section>
-
     </div>
   );
 };

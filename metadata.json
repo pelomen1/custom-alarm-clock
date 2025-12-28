@@ -1,5 +1,8 @@
 {
   "name": "PixelClock Ultra",
   "description": "A sophisticated, minimalist alarm clock and timer app inspired by Pixel UI aesthetics.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
 }

@@ -1,3 +1,4 @@
+
 import { Language } from '../types';
 
 const dictionary = {
@@ -44,6 +45,10 @@ const dictionary = {
     pause: 'Pause',
     resume: 'Resume',
     tapToEdit: 'Tap to edit minutes',
+    about: 'About App',
+    version: 'Version',
+    share: 'Share with friend',
+    developer: 'Developer'
   },
   ru: {
     clock: 'Часы',
@@ -88,9 +93,13 @@ const dictionary = {
     pause: 'Пауза',
     resume: 'Продолжить',
     tapToEdit: 'Нажми, чтобы изменить',
+    about: 'О приложении',
+    version: 'Версия',
+    share: 'Поделиться с другом',
+    developer: 'Разработчик'
   }
 };
 
 export const t = (key: keyof typeof dictionary['en'], lang: Language) => {
-  return dictionary[lang][key];
+  return dictionary[lang][key] || key;
 };

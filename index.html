@@ -1,42 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>PixelClock Ultra</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --sat: env(safe-area-inset-top);
+        --sab: env(safe-area-inset-bottom);
+      }
       body {
         font-family: 'Inter', sans-serif;
         background-color: #000000;
         color: #ffffff;
+        margin: 0;
+        padding: 0;
         -webkit-font-smoothing: antialiased;
-        overscroll-behavior-y: contain;
+        overscroll-behavior: none;
         user-select: none;
+        height: 100dvh;
+        overflow: hidden;
       }
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar { width: 6px; }
-      ::-webkit-scrollbar-track { background: #09090b; }
-      ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+      #root { height: 100%; }
       
-      /* Range Input Reset */
-      input[type=range] { -webkit-appearance: none; background: transparent; }
-      input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; }
-      
-      /* Global Keyframes */
       @keyframes rainbow {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
         100% { background-position: 0% 50%; }
       }
       
-      /* Global Classes that need CSS handling */
-      .animate-rgb {
-        background: linear-gradient(270deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff);
-        background-size: 400% 400%;
-        animation: rainbow 6s ease infinite;
-        will-change: background-position;
-      }
       .text-rgb {
         background: linear-gradient(270deg, #ff5f5f, #ffaf5f, #ffff5f, #5fff5f, #5f5fff, #af5fff);
         background-size: 400% 400%;
@@ -44,61 +41,31 @@
         background-clip: text;
         color: transparent;
         animation: rainbow 6s ease infinite;
-        will-change: background-position;
       }
-      .border-rgb {
-        position: relative;
-        z-index: 0;
-        overflow: hidden;
-      }
-      .border-rgb::before {
-        content: '';
-        position: absolute;
-        z-index: -1;
-        inset: -2px;
+      
+      .animate-rgb {
         background: linear-gradient(270deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff);
         background-size: 400% 400%;
         animation: rainbow 6s ease infinite;
-        border-radius: inherit;
-        will-change: background-position;
       }
-      .border-rgb::after {
-        content: '';
-        position: absolute;
-        z-index: -1;
-        inset: 4px;
-        background: inherit; 
-        border-radius: inherit;
-        background-color: #000000;
-      }
-      
-      /* Background Patterns */
-      .bg-cosmos {
-        background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-        radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
-        background-size: 550px 550px, 350px 350px, 250px 250px;
-        background-position: 0 0, 40px 60px, 130px 270px;
-        background-color: #050508;
-      }
+
+      .bg-cosmos { background: radial-gradient(circle at center, #0f172a 0%, #000000 100%); }
+      .bg-aurora { background: linear-gradient(180deg, #020617 0%, #000000 100%); }
       .bg-grid {
         background-size: 40px 40px;
         background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
                           linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-        background-color: #0a0a0a;
-      }
-      .bg-aurora {
-        background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #000000 100%);
       }
     </style>
   <script type="importmap">
 {
   "imports": {
+    "vite": "https://esm.sh/vite@^7.3.0",
     "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "vite": "https://esm.sh/vite@^7.3.0",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "@capacitor/haptics": "https://esm.sh/@capacitor/haptics@^8.0.0"
   }
 }
 </script>
